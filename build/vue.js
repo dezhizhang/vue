@@ -66,6 +66,7 @@
       },
       set: function set(newValue) {
         if (newValue === value) return;
+        observe(newValue);
         value = newValue;
       }
     });
