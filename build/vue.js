@@ -4,15 +4,6 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Vue = factory());
 })(this, (function () { 'use strict';
 
-    function initMixin(Vue) {
-      Vue.prototype._init = function (options) {
-        var vm = this;
-        vm.$options = options; // 初始化状态
-
-        initState(vm);
-      };
-    }
-
     function initState(vm) {
       // 获取所有的选项
       var opt = vm.$options;
@@ -21,11 +12,19 @@
         initData(vm);
       }
     }
-
     function initData(vm) {
       var data = vm.$options.data;
       data = typeof data === 'function' ? data.call(vm) : data;
       console.log('data', data);
+    }
+
+    function initMixin(Vue) {
+      Vue.prototype._init = function (options) {
+        var vm = this;
+        vm.$options = options; // 初始化状态
+
+        initState(vm);
+      };
     }
 
     function Vue(options) {
