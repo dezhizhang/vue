@@ -1,8 +1,8 @@
 
 import { initMixin } from './init';
 
-function Vue() {
-
+function Vue(options) {
+   this._init(options);
 }
 
 initMixin(Vue)

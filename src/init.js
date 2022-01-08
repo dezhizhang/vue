@@ -20,7 +20,6 @@ function initState(vm) {
 
 function initData(vm) {
     let data = vm.$options.data;
-    debugger
     data = typeof data === 'function' ? data.call(vm):data;
     console.log('data',data)
 }

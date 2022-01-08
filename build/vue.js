@@ -24,12 +24,13 @@
 
     function initData(vm) {
       var data = vm.$options.data;
-      debugger;
       data = typeof data === 'function' ? data.call(vm) : data;
       console.log('data', data);
     }
 
-    function Vue() {}
+    function Vue(options) {
+      this._init(options);
+    }
 
     initMixin(Vue);
 
