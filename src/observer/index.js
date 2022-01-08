@@ -12,6 +12,7 @@ class Observer {
 }
 
 function defineReactive(target, key, value) {
+    observe(value);
     Object.defineProperty(target, key, {
         get() {
             return value;
