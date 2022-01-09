@@ -39,6 +39,65 @@
     return Constructor;
   }
 
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+  }
+
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
+  function _iterableToArrayLimit(arr, i) {
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+
+    if (_i == null) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+
+    var _s, _e;
+
+    try {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
   var oldArrayProto = Array.prototype;
   var newArrayProto = Object.create(oldArrayProto);
   var methods = ['push', 'pop', 'shift', 'unshift', 'resolve', 'sort', 'splice'];
@@ -156,8 +215,34 @@
   var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>"));
   var startTagClose = /^\s*(\/?)>/;
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
-
   function parseHTML(html) {
+    var ELEMENT_TYPE = 1;
+    var currentParent;
+    var root; // 转换成语法树
+
+    function createAstElement(tag, attrs) {
+      return {
+        tag: tag,
+        type: ELEMENT_TYPE,
+        children: [],
+        attrs: attrs,
+        parent: null
+      };
+    }
+
+    function start(tag, attrs) {
+      var node = createAstElement(tag, attrs);
+
+      if (!root) {
+        root = node;
+      }
+
+      if (currentParent) {
+        node.parent = currentParent;
+        currentParent.children.push(node);
+      }
+      currentParent = node;
+    }
 
     function advance(n) {
       html = html.substring(n);
@@ -200,6 +285,7 @@
         var startTagMatch = parseStartTag();
 
         if (startTagMatch) {
+          start(startTagMatch);
           continue;
         }
 
@@ -222,11 +308,66 @@
       }
     }
 
-    console.log(html);
+    return root;
+  }
+
+  var defaultTagReg = /\{\{((?:.|\r?\n)+?)\}\}/g;
+
+  function genProps(attrs) {
+    var str = '';
+
+    for (var i = 0; i < attrs.length; i++) {
+      var attr = attrs[i];
+
+      if (attr.name === 'style') {
+        (function () {
+          var obj = {};
+          attr.value.split(';').forEach(function (element) {
+            var _item$split = item.split(':'),
+                _item$split2 = _slicedToArray(_item$split, 2),
+                key = _item$split2[0],
+                value = _item$split2[1];
+
+            obj[key] = value;
+          });
+          attr.value = obj;
+        })();
+      }
+
+      str += "".concat(attr.name, ":").concat(JSON.stringify(attr.value), ",");
+    }
+
+    return "{".concat(str.slice(0, -1), "}");
+  }
+
+  function gen(node) {
+    if (node.type === 1) {
+      return codeGen(node);
+    } else {
+      var text = node.text;
+
+      if (!defaultTagReg.test(text)) {
+        return "h(".concat(JSON.stringify(text), ")");
+      }
+    }
+  }
+
+  function genChildren(children) {
+    return children.map(function (child) {
+      return gen(child).join(',');
+    });
+  }
+
+  function codeGen(ast) {
+    var children = genChildren(ast.children);
+    var code = "h('".concat(ast.tag, "',").concat(ast.attrs.length > 0 ? genProps(ast.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
+    return code;
   }
 
   function compileToFunction(template) {
-    parseHTML(template);
+    var ast = parseHTML(template);
+    var code = codeGen(ast);
+    console.log('ast', code);
   }
 
   function initMixin(Vue) {
