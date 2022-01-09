@@ -30,7 +30,6 @@ export function initMixin(Vue) {
             if(template) {
                 compileToFunction(template);
             }
-            console.log(template);
         }
     }
 }

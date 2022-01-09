@@ -153,6 +153,7 @@
   var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*";
   var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")");
   var startTagOpen = new RegExp("^<".concat(qnameCapture));
+  var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>"));
   var startTagClose = /^\s*(\/?)>/;
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
 
@@ -174,7 +175,6 @@
 
         while (!(end = html.match(startTagClose)) && (attr = html.match(attribute))) {
           advance(attr[0].length);
-          console.log(attr);
           match.attrs.push({
             name: attr[1],
             value: attr[3] || attr[4] || attr[5]
@@ -198,7 +198,14 @@
         var startTagMatch = parseStartTag();
 
         if (startTagMatch) {
-          console.log('html', html);
+          continue;
+        }
+
+        var endTagMatch = html.match(endTag);
+
+        if (endTag) {
+          advance(endTagMatch[0].length);
+          continue;
         }
 
         break;
@@ -209,10 +216,11 @@
 
         if (text) {
           advance(text.length);
-          console.log('html', html);
         }
       }
     }
+
+    console.log(html);
   }
 
   function compileToFunction(template) {
@@ -248,8 +256,6 @@
         if (template) {
           compileToFunction(template);
         }
-
-        console.log(template);
       }
     };
   }
