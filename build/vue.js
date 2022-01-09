@@ -39,11 +39,55 @@
     return Constructor;
   }
 
+  var oldArrayProto = Array.prototype;
+  var newArrayProto = Object.create(oldArrayProto);
+  var methods = ['push', 'pop', 'shift', 'unshift', 'resolve', 'sort', 'splice'];
+  methods.forEach(function (method) {
+    newArrayProto[method] = function () {
+      var _oldArrayProto$method;
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      (_oldArrayProto$method = oldArrayProto[method]).call.apply(_oldArrayProto$method, [this].concat(args)); // 新增数据进行却持
+
+
+      var inserted;
+      var ob = this.__ob__;
+
+      switch (method) {
+        case 'push':
+        case 'unshift':
+          inserted = args;
+          break;
+
+        case 'splice':
+          inserted = args.slice(2);
+          break;
+      }
+
+      if (inserted) {
+        ob.observeArray(inserted);
+      }
+    };
+  });
+
   var Observer = /*#__PURE__*/function () {
-    function Observer(value) {
+    function Observer(data) {
       _classCallCheck(this, Observer);
 
-      this.walk(value);
+      Object.defineProperty(data, '__ob__', {
+        value: this,
+        enumerable: false
+      });
+
+      if (Array.isArray(data)) {
+        data.__proto__ = newArrayProto;
+        this.observeArray(data);
+      } else {
+        this.walk(data);
+      }
     }
 
     _createClass(Observer, [{
@@ -51,6 +95,13 @@
       value: function walk(target) {
         Object.keys(target).forEach(function (key) {
           defineReactive(target, key, target[key]);
+        });
+      }
+    }, {
+      key: "observeArray",
+      value: function observeArray(data) {
+        data.forEach(function (item) {
+          return observe(item);
         });
       }
     }]);
@@ -75,6 +126,10 @@
   function observe(data) {
     if (_typeof(data) !== 'object' || data == null) {
       return; // 不是对像不能观测
+    }
+
+    if (data._ob_ instanceof Observer) {
+      return data._ob_;
     }
 
     return new Observer(data);
