@@ -7,6 +7,52 @@ const startTagClose = /^\s*(\/?)>/;
 const attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
 
 function parseHTML(html) {
+    const ELEMENT_TYPE = 1;
+    const TEXT_TYPE = 3;
+    let stack = [];
+    let currentParent;
+    let root;
+
+
+    // 转换成语法树
+    function createAstElement(tag, attrs) {
+        return {
+            tag,
+            type: ELEMENT_TYPE,
+            children: [],
+            attrs,
+            parent: null,
+        }
+    }
+
+    function start(tag, attrs) {
+        let node = createAstElement(tag, attrs);
+        if (!root) {
+            root = node;
+        }
+
+        if (currentParent) {
+            node.parent = currentParent;
+        }
+        stack.push(node);
+        currentParent = node;
+    }
+
+    function chars(text) {
+        text = text.replace(/\s/g,'')
+        text && currentParent.children.push({
+            type: TEXT_TYPE,
+            text,
+            parent:currentParent,
+        });
+    }
+
+    function end(tag) {
+       let node = stack.pop();
+       currentParent = stack[stack.length - 1];
+    }
+
+
     function advance(n) {
         html = html.substring(n);
     }

@@ -158,6 +158,7 @@
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
 
   function parseHTML(html) {
+
     function advance(n) {
       html = html.substring(n);
     }
@@ -171,9 +172,10 @@
           attrs: []
         };
         advance(start[1].length);
-        var attr, end;
 
-        while (!(end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+        var attr, _end;
+
+        while (!(_end = html.match(startTagClose)) && (attr = html.match(attribute))) {
           advance(attr[0].length);
           match.attrs.push({
             name: attr[1],
@@ -181,8 +183,8 @@
           });
         }
 
-        if (end) {
-          advance(end[0].length);
+        if (_end) {
+          advance(_end[0].length);
         }
 
         return match;
