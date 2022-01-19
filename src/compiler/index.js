@@ -9,7 +9,7 @@ function genProps(attrs) {
         let attr = attrs[i];
         if (attr.name === 'style') {
             let obj = {};
-            attr.value.split(';').forEach(element => {
+            attr.value.split(';').forEach(item => {
                 let [key, value] = item.split(':');
                 obj[key] = value;
             });
@@ -29,24 +29,34 @@ function gen(node) {
         if(!defaultTagReg.test(text)) {
             return `h(${JSON.stringify(text)})`;
         }else {
-            
+            let tokens = [];
+            let match;
+            defaultTagReg.lastIndex = 0;
+            console.log(text);
+            while(defaultTagReg.exec(text)) {
+                let index = match.index;
+                tokens.push(`_${match[1].trim()}`)
+            }
         }
     }
 }
 
 function genChildren(children) {
-    return children.map(child => gen(child).join(','))
+    if(children) {
+        return children.map(child => gen(child)).join(',')
+    }
 }
 
 
 function codeGen(ast) {
     let children = genChildren(ast.children);
-    let code = `h('${ast.tag}',${ast.attrs.length > 0 ? genProps(ast.attrs) : 'null'},${ast.children.length ? children : ''})`;
+    let code = `h('${ast.tag}',${ast.attrs && ast.attrs.length > 0 ? genProps(ast.attrs) : 'null'},${ast.children.length ? children : ''})`;
     return code;
 }
 
 export function compileToFunction(template) {
+    console.log(template);
     let ast = parseHTML(template);
     let code = codeGen(ast);
-    console.log('ast', code);
+    console.log('ast',code);
 }

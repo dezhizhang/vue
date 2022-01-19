@@ -322,7 +322,7 @@
       if (attr.name === 'style') {
         (function () {
           var obj = {};
-          attr.value.split(';').forEach(function (element) {
+          attr.value.split(';').forEach(function (item) {
             var _item$split = item.split(':'),
                 _item$split2 = _slicedToArray(_item$split, 2),
                 key = _item$split2[0],
@@ -348,23 +348,36 @@
 
       if (!defaultTagReg.test(text)) {
         return "h(".concat(JSON.stringify(text), ")");
+      } else {
+        var tokens = [];
+        var match;
+        defaultTagReg.lastIndex = 0;
+        console.log(text);
+
+        while (defaultTagReg.exec(text)) {
+          match.index;
+          tokens.push("_".concat(match[1].trim()));
+        }
       }
     }
   }
 
   function genChildren(children) {
-    return children.map(function (child) {
-      return gen(child).join(',');
-    });
+    if (children) {
+      return children.map(function (child) {
+        return gen(child);
+      }).join(',');
+    }
   }
 
   function codeGen(ast) {
     var children = genChildren(ast.children);
-    var code = "h('".concat(ast.tag, "',").concat(ast.attrs.length > 0 ? genProps(ast.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
+    var code = "h('".concat(ast.tag, "',").concat(ast.attrs && ast.attrs.length > 0 ? genProps(ast.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
     return code;
   }
 
   function compileToFunction(template) {
+    console.log(template);
     var ast = parseHTML(template);
     var code = codeGen(ast);
     console.log('ast', code);
