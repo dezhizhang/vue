@@ -67,7 +67,9 @@ function codeGen(ast) {
 export function compileToFunction(template) {
    
     let ast = parseHTML(template);
-    console.log(ast);
+  
     let code = codeGen(ast);
-    console.log('ast',code);
+    code = `with(this){return  ${code}}`;
+    let render = new Function(code)
+    console.log('ast',render);
 }

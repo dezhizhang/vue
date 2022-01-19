@@ -24,13 +24,18 @@ export function initMixin(Vue) {
             let template;
             if(!opt.template && el) {
                 template = el.outerHTML;
-            }else if(el){
-                template = opt.template;
+            }else{
+                if(el) {
+                    template = opt.template;
+                }
             }
             if(template) {
                 compileToFunction(template);
+                opt.render = render;
+
             }
         }
+        mountComponent(vm,el)
     }
 }
 

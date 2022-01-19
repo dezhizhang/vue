@@ -206,7 +206,6 @@
     var data = vm.$options.data;
     data = vm._data = typeof data === 'function' ? data.call(vm) : data;
     observe(data);
-    console.log('data', data);
   }
 
   var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*";
@@ -390,9 +389,10 @@
 
   function compileToFunction(template) {
     var ast = parseHTML(template);
-    console.log(ast);
     var code = codeGen(ast);
-    console.log('ast', code);
+    code = "with(this){return  ".concat(code, "}");
+    var render = new Function(code);
+    console.log('ast', render);
   }
 
   function initMixin(Vue) {
@@ -417,15 +417,26 @@
 
         if (!opt.template && el) {
           template = el.outerHTML;
-        } else if (el) {
-          template = opt.template;
+        } else {
+          if (el) {
+            template = opt.template;
+          }
         }
 
         if (template) {
           compileToFunction(template);
+          opt.render = render;
         }
       }
+
+      mountComponent(vm, el);
     };
+  }
+
+  function initLifeCycle(Vue) {
+    Vue.prototype._update = function () {};
+
+    Vue.prototype._render = function () {};
   }
 
   function Vue(options) {
@@ -433,6 +444,7 @@
   }
 
   initMixin(Vue);
+  initLifeCycle(Vue);
 
   return Vue;
 
