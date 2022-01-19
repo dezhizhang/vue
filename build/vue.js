@@ -352,12 +352,24 @@
         var tokens = [];
         var match;
         defaultTagReg.lastIndex = 0;
-        console.log(text);
+        var lastIndex = 0;
 
         while (defaultTagReg.exec(text)) {
-          match.index;
+          var index = match.index;
+
+          if (index > lastIndex) {
+            tokens.push(JSON.stringify(text.slice(lastIndex, index)));
+          }
+
           tokens.push("_".concat(match[1].trim()));
+          lastIndex = index + match[0].length;
         }
+
+        if (lastIndex < text.length) {
+          tokens.push(JSON.stringify(text.slice(lastIndex)));
+        }
+
+        return "_v(".concat(tokens.join('+'), ")");
       }
     }
   }
@@ -372,13 +384,13 @@
 
   function codeGen(ast) {
     var children = genChildren(ast.children);
-    var code = "h('".concat(ast.tag, "',").concat(ast.attrs && ast.attrs.length > 0 ? genProps(ast.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
+    var code = "h('".concat(ast.tag.tagName, "',").concat(ast.tag.attrs.length > 0 ? genProps(ast.tag.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
     return code;
   }
 
   function compileToFunction(template) {
-    console.log(template);
     var ast = parseHTML(template);
+    console.log(ast);
     var code = codeGen(ast);
     console.log('ast', code);
   }

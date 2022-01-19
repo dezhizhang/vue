@@ -32,11 +32,21 @@ function gen(node) {
             let tokens = [];
             let match;
             defaultTagReg.lastIndex = 0;
-            console.log(text);
+            let lastIndex = 0;
             while(defaultTagReg.exec(text)) {
                 let index = match.index;
-                tokens.push(`_${match[1].trim()}`)
+                if(index > lastIndex) {
+                    tokens.push(JSON.stringify(text.slice(lastIndex,index)));
+                }
+                tokens.push(`_${match[1].trim()}`);
+                lastIndex = index + match[0].length;
             }
+
+            if(lastIndex < text.length) {
+                tokens.push(JSON.stringify(text.slice(lastIndex)))
+            }
+
+            return `_v(${tokens.join('+')})`
         }
     }
 }
@@ -50,13 +60,14 @@ function genChildren(children) {
 
 function codeGen(ast) {
     let children = genChildren(ast.children);
-    let code = `h('${ast.tag}',${ast.attrs && ast.attrs.length > 0 ? genProps(ast.attrs) : 'null'},${ast.children.length ? children : ''})`;
+    let code = `h('${ast.tag.tagName}',${ast.tag.attrs.length > 0 ? genProps(ast.tag.attrs) : 'null'},${ast.children.length ? children : ''})`;
     return code;
 }
 
 export function compileToFunction(template) {
-    console.log(template);
+   
     let ast = parseHTML(template);
+    console.log(ast);
     let code = codeGen(ast);
     console.log('ast',code);
 }
