@@ -54,9 +54,29 @@ function queueWatcher(watcher) {
         queue.push(watcher);
         has[id] = true;
         if(!pending) {
-            setTimeout(flushSchedulerQueue,0);
+            nextTick(flushSchedulerQueue);
             pending = true;
         }
+    }
+}
+
+let callbacks = [];
+let waiting = false;
+
+function flushCallbacks() {
+    let cbs = callbacks.slice(0);
+    waiting = false;
+    callbacks = [];
+    cbs.forEach(cb => cb());
+}
+
+
+function nextTick(cb) {
+    callbacks.push(cb);
+    if(!waiting) {
+        setTimeout(() => {
+            flushCallbacks();
+        },0)
     }
 }
 

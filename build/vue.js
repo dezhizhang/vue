@@ -533,9 +533,31 @@
       has[id] = true;
 
       if (!pending) {
-        setTimeout(flushSchedulerQueue, 0);
+        nextTick(flushSchedulerQueue);
         pending = true;
       }
+    }
+  }
+
+  var callbacks = [];
+  var waiting = false;
+
+  function flushCallbacks() {
+    var cbs = callbacks.slice(0);
+    waiting = false;
+    callbacks = [];
+    cbs.forEach(function (cb) {
+      return cb();
+    });
+  }
+
+  function nextTick(cb) {
+    callbacks.push(cb);
+
+    if (!waiting) {
+      setTimeout(function () {
+        flushCallbacks();
+      }, 0);
     }
   }
 
