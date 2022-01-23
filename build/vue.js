@@ -346,7 +346,7 @@
       var text = node.text;
 
       if (!defaultTagReg.test(text)) {
-        return "h(".concat(JSON.stringify(text), ")");
+        return "_c(".concat(JSON.stringify(text), ")");
       } else {
         var tokens = [];
         var match;
@@ -360,7 +360,7 @@
             tokens.push(JSON.stringify(text.slice(lastIndex, index)));
           }
 
-          tokens.push("_".concat(match[1].trim()));
+          tokens.push("_s".concat(match[1].trim()));
           lastIndex = index + match[0].length;
         }
 
@@ -383,7 +383,7 @@
 
   function codeGen(ast) {
     var children = genChildren(ast.children);
-    var code = "h('".concat(ast.tag.tagName, "',").concat(ast.tag.attrs.length > 0 ? genProps(ast.tag.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
+    var code = "_c('".concat(ast.tag.tagName, "',").concat(ast.tag.attrs.length > 0 ? genProps(ast.tag.attrs) : 'null', ",").concat(ast.children.length ? children : '', ")");
     return code;
   }
 

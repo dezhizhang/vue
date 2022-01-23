@@ -27,7 +27,7 @@ function gen(node) {
     }else {
         const text = node.text;
         if(!defaultTagReg.test(text)) {
-            return `h(${JSON.stringify(text)})`;
+            return `_c(${JSON.stringify(text)})`;
         }else {
             let tokens = [];
             let match;
@@ -38,7 +38,7 @@ function gen(node) {
                 if(index > lastIndex) {
                     tokens.push(JSON.stringify(text.slice(lastIndex,index)));
                 }
-                tokens.push(`_${match[1].trim()}`);
+                tokens.push(`_s${match[1].trim()}`);
                 lastIndex = index + match[0].length;
             }
 
@@ -60,7 +60,7 @@ function genChildren(children) {
 
 function codeGen(ast) {
     let children = genChildren(ast.children);
-    let code = `h('${ast.tag.tagName}',${ast.tag.attrs.length > 0 ? genProps(ast.tag.attrs) : 'null'},${ast.children.length ? children : ''})`;
+    let code = `_c('${ast.tag.tagName}',${ast.tag.attrs.length > 0 ? genProps(ast.tag.attrs) : 'null'},${ast.children.length ? children : ''})`;
     return code;
 }
 
