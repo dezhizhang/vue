@@ -152,6 +152,13 @@
       value: function addSub(watcher) {
         this.subs.push(watcher);
       }
+    }, {
+      key: "notify",
+      value: function notify() {
+        this.subs.forEach(function (watcher) {
+          return watcher.update();
+        });
+      }
     }]);
 
     return Dep;
@@ -210,6 +217,7 @@
         if (newValue === value) return;
         observe(newValue);
         value = newValue;
+        dep.notify();
       }
     });
   }
@@ -487,6 +495,11 @@
         Dep.target = this;
         this.getter();
         Dep.target = null;
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.get();
       }
     }]);
 

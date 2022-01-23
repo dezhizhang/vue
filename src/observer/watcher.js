@@ -27,6 +27,10 @@ class Watcher{
         this.getter();
         Dep.target = null;
     }
+
+    update() {
+        this.get();
+    }
 }
 
 
