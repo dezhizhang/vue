@@ -1,4 +1,3 @@
-
 let id = 0;
 class Dep{
     constructor() {
@@ -8,6 +7,12 @@ class Dep{
     depend() {
         this.subs.push(Dep.target);
     }
+
+    addSub(watcher) {
+        this.subs.push(watcher)
+    }
+
+
 }
 
 Dep.target = null;

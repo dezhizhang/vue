@@ -132,13 +132,13 @@
     };
   });
 
-  var id = 0;
+  var id$1 = 0;
 
   var Dep = /*#__PURE__*/function () {
     function Dep() {
       _classCallCheck(this, Dep);
 
-      this.id = id++;
+      this.id = id$1++;
       this.subs = [];
     }
 
@@ -146,6 +146,11 @@
       key: "depend",
       value: function depend() {
         this.subs.push(Dep.target);
+      }
+    }, {
+      key: "addSub",
+      value: function addSub(watcher) {
+        this.subs.push(watcher);
       }
     }]);
 
@@ -450,6 +455,43 @@
       text: text
     };
   }
+
+  var id = 0;
+
+  var Watcher = /*#__PURE__*/function () {
+    function Watcher(vm, fn, options) {
+      _classCallCheck(this, Watcher);
+
+      this.id = id++;
+      this.renderWatcher = options;
+      this.getter = fn;
+      this.deps = [];
+      this.depsId = new Set();
+      this.get();
+    }
+
+    _createClass(Watcher, [{
+      key: "addDep",
+      value: function addDep(dep) {
+        var id = dep.id;
+
+        if (this.depsId.has(id)) {
+          this.deps.push(dep);
+          this.depsId.add(id);
+          dep.addSub(this);
+        }
+      }
+    }, {
+      key: "get",
+      value: function get() {
+        Dep.target = this;
+        this.getter();
+        Dep.target = null;
+      }
+    }]);
+
+    return Watcher;
+  }();
 
   function createElm(vnode) {
     var tag = vnode.tag,
