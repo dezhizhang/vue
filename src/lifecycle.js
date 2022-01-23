@@ -71,5 +71,6 @@ export function initLifeCycle(Vue) {
 
  
 export function mountComponent(vm,el) {
+    vm.$el = el;
     vm._update(vm._render())
 }

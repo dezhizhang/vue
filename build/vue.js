@@ -132,6 +132,28 @@
     };
   });
 
+  var id = 0;
+
+  var Dep = /*#__PURE__*/function () {
+    function Dep() {
+      _classCallCheck(this, Dep);
+
+      this.id = id++;
+      this.subs = [];
+    }
+
+    _createClass(Dep, [{
+      key: "depend",
+      value: function depend() {
+        this.subs.push(Dep.target);
+      }
+    }]);
+
+    return Dep;
+  }();
+
+  Dep.target = null;
+
   var Observer = /*#__PURE__*/function () {
     function Observer(data) {
       _classCallCheck(this, Observer);
@@ -170,8 +192,13 @@
 
   function defineReactive(target, key, value) {
     observe(value);
+    var dep = new Dep();
     Object.defineProperty(target, key, {
       get: function get() {
+        if (Dep.target) {
+          dep.depend();
+        }
+
         return value;
       },
       set: function set(newValue) {
@@ -493,6 +520,8 @@
     };
   }
   function mountComponent(vm, el) {
+    vm.$el = el;
+
     vm._update(vm._render());
   }
 
@@ -530,7 +559,7 @@
         }
       }
 
-      mountComponent(vm);
+      mountComponent(vm, el);
     };
   }
 

@@ -24,12 +24,14 @@
                     },
                     hobby: ['eat', 'drink', { a: 10 }]
                 }
-            },
-            el: '#app',
-            render() {
-
-            }
-        });        
+            }, 
+        });   
+        vm.$mount('#app');
+        
+        setTimeout(() => {
+            vm.name = 'jw';
+            vm.age = 30;
+        },100)
     </script>
 </body>
 
