@@ -499,12 +499,45 @@
     }, {
       key: "update",
       value: function update() {
+        queueWatcher(this);
+      }
+    }, {
+      key: "run",
+      value: function run() {
         this.get();
       }
     }]);
 
     return Watcher;
   }();
+
+  var queue = [];
+  var has = {};
+  var pending = false;
+
+  function flushSchedulerQueue() {
+    var flushQueue = queue.slice(0);
+    queue = [];
+    has = {};
+    pending = false;
+    flushQueue.forEach(function (q) {
+      return q.run();
+    });
+  }
+
+  function queueWatcher(watcher) {
+    var id = watcher.id;
+
+    if (!has[id]) {
+      queue.push(watcher);
+      has[id] = true;
+
+      if (!pending) {
+        setTimeout(flushSchedulerQueue, 0);
+        pending = true;
+      }
+    }
+  }
 
   function createElm(vnode) {
     var tag = vnode.tag,

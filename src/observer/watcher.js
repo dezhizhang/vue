@@ -29,7 +29,34 @@ class Watcher{
     }
 
     update() {
+        queueWatcher(this);
+    }
+    run() {
         this.get();
+    }
+}
+
+let queue = [];
+let has = {};
+let pending = false;
+
+function flushSchedulerQueue() {
+    let flushQueue = queue.slice(0);
+    queue = [];
+    has = {};
+    pending = false;
+    flushQueue.forEach(q => q.run());
+}
+
+function queueWatcher(watcher) {
+    const id = watcher.id;
+    if(!has[id]) {
+        queue.push(watcher);
+        has[id] = true;
+        if(!pending) {
+            setTimeout(flushSchedulerQueue,0);
+            pending = true;
+        }
     }
 }
 
