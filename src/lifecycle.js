@@ -1,6 +1,6 @@
 
 import {createElementVNode,createTextNode} from './vdom/index';
-
+import Watcher from './observer/watcher';
 
 function createElm(vnode) {
     const { tag,data,children,text} = vnode;
@@ -72,5 +72,12 @@ export function initLifeCycle(Vue) {
  
 export function mountComponent(vm,el) {
     vm.$el = el;
-    vm._update(vm._render())
+
+
+    const updateComponent = () => {
+        vm._update(vm._render());
+    }
+
+
+    new Watcher(vm,updateComponent,true);
 }

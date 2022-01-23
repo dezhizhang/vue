@@ -522,7 +522,11 @@
   function mountComponent(vm, el) {
     vm.$el = el;
 
-    vm._update(vm._render());
+    var updateComponent = function updateComponent() {
+      vm._update(vm._render());
+    };
+
+    new Watcher(vm, updateComponent, true);
   }
 
   function initMixin(Vue) {
