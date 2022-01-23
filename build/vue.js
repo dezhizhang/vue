@@ -433,10 +433,27 @@
     };
   }
 
+  function createElementVNode() {}
+  function createTextNode() {}
+
   function initLifeCycle(Vue) {
     Vue.prototype._update = function () {};
 
-    Vue.prototype._render = function () {};
+    Vue.prototype._c = function () {
+      return createElementVNode.apply(void 0, [this].concat(Array.prototype.slice.call(arguments)));
+    };
+
+    Vue.prototype._v = function () {
+      return createTextNode.apply(void 0, [this].concat(Array.prototype.slice.call(arguments)));
+    };
+
+    Vue.prototype._s = function (value) {
+      return JSON.stringify(value);
+    };
+
+    Vue.prototype._render = function () {
+      return this.$options.render.call(this);
+    };
   }
 
   function Vue(options) {
