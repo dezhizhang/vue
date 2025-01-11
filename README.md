@@ -1,33 +1,63 @@
-# vue-project
+# vue 练习 demo
 
-This template should help get you started developing with Vue 3 in Vite.
+### reactive 对偈响应式
 
-## Recommended IDE Setup
+```js
+import { reactive } from "vue";
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+const car = reactive({
+  brand: "小汽车",
+  price: 100,
+});
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+function changePrice() {
+  car.price += 10;
+}
 ```
 
-### Compile and Hot-Reload for Development
+### 计算属性
 
-```sh
-npm run dev
+```js
+import { ref, computed } from "vue";
+
+const firstName = ref("zhang");
+const lastName = ref("san");
+
+const fullName = computed(() => {
+  return (
+    firstName.value.slice(0, 1).toLowerCase() +
+    firstName.value.slice(1) +
+    "-" +
+    lastName.value
+  );
+});
 ```
 
-### Type-Check, Compile and Minify for Production
+### 计算属性 2
 
-```sh
-npm run build
+```js
+import { ref, computed } from "vue";
+
+const firstName = ref("zhang");
+const lastName = ref("san");
+
+const fullName = computed({
+  get() {
+    return (
+      firstName.value.slice(0, 1).toLocaleLowerCase() +
+      firstName.value.slice(1) +
+      "-" +
+      lastName.value
+    );
+  },
+  set(val) {
+    const [str1, str2] = val.split("-");
+    firstName.value = str1;
+    lastName.value = str2;
+  },
+});
+
+function handleChange() {
+  fullName.value = "li-sh";
+}
 ```

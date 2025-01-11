@@ -1,47 +1,44 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
+<!--
+ * :file description: 
+ * :name: /vue/src/App.vue
+ * :author:张德志
+ * :copyright: (c) 2025, Xiaozhi
+ * :date created: 2025-01-11 14:04:19
+ * :last editor: 张德志
+ * :date last edited: 2025-01-11 18:33:16
+-->
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div class="">
+    <!-- <h2 @click="changeName">姓名:{{person.name}}</h2>
+    <h2 @click="changeAge">年龄：{{person.age}}</h2> -->
+    <input v-model="firstName"/>
+    <input v-model="lastName"/>
+    <div>{{fullName}}</div>
+    <button @click="handleChange">修改fullname</button>
+  </div>
 </template>
+<script lang="ts" setup>
 
-<style scoped>
-header {
-  line-height: 1.5;
+import { ref,computed } from 'vue';
+
+const firstName = ref('zhang');
+const lastName = ref('san');
+
+
+const fullName = computed({
+  get() {
+    return firstName.value.slice(0,1).toLocaleLowerCase() + firstName.value.slice(1) + '-' + lastName.value;
+  },
+  set(val) {
+    const [str1,str2] = val.split('-');
+    firstName.value = str1;
+    lastName.value = str2;
+  }
+})
+
+function handleChange() {
+  fullName.value = 'li-sh';
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+</script>
